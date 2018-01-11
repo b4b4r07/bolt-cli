@@ -76,7 +76,7 @@ func main() {
 			fmt.Println(goodbyeMsg)
 			return
 		default:
-			fmt.Println("> Unknown command:", cmd)
+			fmt.Println("Unknown command:", cmd)
 		}
 
 		line.AppendHistory(cmd)
@@ -87,28 +87,26 @@ func main() {
 func changeBucket(cmd string) {
 	arg := regexp.MustCompile(" ").Split(cmd, 2)
 	if len(arg) == 2 {
-		fmt.Printf("> Bucket was \"%s\", changed to \"%s\"\n", *bucketName, arg[1])
+		fmt.Printf("Bucket was %q, changed to %q\n", *bucketName, arg[1])
 		*bucketName = arg[1]
 	} else {
 		if *bucketName == "" {
-			fmt.Println("> You are at the root bucket.")
+			fmt.Println("You are at the root bucket.")
 		} else {
-			fmt.Println("> You are at the", *bucketName, "bucket.")
+			fmt.Printf("You are at the %q bucket.\n", *bucketName)
 		}
-
 	}
-
 }
 
 func showKeys(cmd string) {
 	arg := regexp.MustCompile(" ").Split(cmd, 2)
 	if len(arg) == 2 {
 		for _, v := range queryKeys(arg[1]) {
-			fmt.Println(">", v)
+			fmt.Println(v)
 		}
 	} else {
 		for _, v := range queryKeys("*") {
-			fmt.Println(">", v)
+			fmt.Println(v)
 		}
 	}
 }
@@ -118,7 +116,7 @@ func getKey(cmd string) {
 	if len(arg) == 2 {
 		queryKeyValue(arg[1])
 	} else {
-		fmt.Println("> Key must be given.")
+		fmt.Println("Key must be given.")
 	}
 }
 
@@ -127,7 +125,7 @@ func queryKeys(keyName string) []string {
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(*bucketName))
 		if b == nil {
-			fmt.Println("> Bucket does not exist or no bucket selected.")
+			fmt.Println("Bucket does not exist or no bucket selected.")
 			return nil
 		}
 		b.ForEach(func(k, v []byte) error {
@@ -145,17 +143,17 @@ func queryKeyValue(keyName string) {
 	db.View(func(tx *bolt.Tx) error {
 		v := tx.Bucket([]byte(*bucketName)).Get([]byte(keyName))
 		if v == nil {
-			fmt.Println("> Key does not exist or key is a nested bucket.")
+			fmt.Println("Key does not exist or key is a nested bucket.")
 			return nil
 		}
 		var out bytes.Buffer
 		err := json.Indent(&out, v, "", "  ")
 		if err == nil {
-			fmt.Println("> JSON Pretty Printed:")
+			fmt.Println("JSON Pretty Printed:")
 			fmt.Print(out.String())
 			fmt.Println()
 		} else {
-			fmt.Println(">", string(v))
+			fmt.Println(string(v))
 		}
 
 		return nil
